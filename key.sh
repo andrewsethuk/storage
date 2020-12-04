@@ -35,17 +35,6 @@ if [ "$1" = 'update' ]; then
 	#---------------------------------------------------------------------
 	# config
 
-	user=$(git config --local --get user.name)
-	if [ -z $user ]; then
-		[ -z $GIT_USER_NAME ] && read -p 'Input your name: ' GIT_USER_NAME
-		git config --local --add user.name $GIT_USER_NAME
-	fi
-
-	email=$(git config --local --get user.email)
-	if [ -z $email ]; then
-		[ -z $GIT_USER_EMAIL ] && read -p 'Input your email: ' GIT_USER_EMAIL
-	       	git config --local --add user.email $GIT_USER_EMAIL
-	fi
 
 	push=$(git config --local --get push.default)
 	if [ -z $push ]; then
@@ -57,6 +46,8 @@ if [ "$1" = 'update' ]; then
 	if [ -z $gituser ]; then
 		[ -z $GIT_PUSH_USER ] && read -p 'Input your GitHub username: ' GIT_PUSH_USER
 		[ -z $GIT_PUSH_USER ] && exit 1
+		git config --local --add user.name $GIT_PUSH_USER
+	       	git config --local --add user.email $GIT_PUSH_USER@github.com
 	       	git config --local --add user.gituser $GIT_PUSH_USER
 		gituser=$GIT_PUSH_USER
 	fi
@@ -106,6 +97,9 @@ fi
 
 #--------------------------- checkout  ---------------------------
 
+source_dir=$ROOT_DIR/$PRIVATE_DIR
+checkout_dir=$ROOT_DIR/$CHECKOUT_DIR
+
 #if [ $(whoami) != 'root' ]; then
 #    echo "CHECKOUT should be executed as root or with sudo:"
 #    echo "	sudo sh $ORIARGS "
@@ -116,20 +110,23 @@ if ! type "$(which 'encfs')" > /dev/null 2>&1; then
 	brew install encfs
 fi
 
-if [ "$1" = 'close' ]; then
-	checkout_dir=$ROOT_DIR/$CHECKOUT_DIR
-	umount $checkout_dir
-	exit 0
-fi
-
 if [ "$1" = 'pass' ]; then
 	ECRYPTFS_PASS=$(git config --local --get user.checkpass)
 	echo "checkpass: $ECRYPTFS_PASS"
 	exit 0
 fi
 
-source_dir=$ROOT_DIR/$PRIVATE_DIR
-checkout_dir=$ROOT_DIR/$CHECKOUT_DIR
+if [ "$1" = 'close' ]; then
+	umount $checkout_dir
+	exit 0
+fi
+
+if [ ! -z "$(ls -A ${checkout_dir})" ]; then
+	#encfs --unmount $checkout_dir
+	echo "maybe already mounted."
+	exit 0
+fi
+
 mkdir -p $source_dir
 mkdir -p $checkout_dir 
 
@@ -154,10 +151,6 @@ fi
 
 echo "source: $source_dir"
 echo "checkout: $checkout_dir"
-
-if [ ! -z "$(ls -A ${checkout_dir})" ]; then
-	encfs --unmount $checkout_dir
-fi
 
 echo "$ECRYPTFS_PASS" | encfs --standard --stdinpass "$source_dir" "$checkout_dir"
 chown -R $USER:$GROUP "$checkout_dir"
