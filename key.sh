@@ -136,6 +136,8 @@ if [ ! -f $ignoreFile ]; then
 fi
 if ! grep -iq "$CHECKOUT_DIR" $ignoreFile; then
 	echo "${CHECKOUT_DIR}\n$(cat "$ignoreFile")" > "$ignoreFile"
+	echo '*.swp' >> "$ignoreFile"
+	echo '*.swo' >> "$ignoreFile"
 fi
 
 
