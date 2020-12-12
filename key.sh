@@ -7,6 +7,12 @@ PRIVATE_DIR='.PRIVATE'
 ROOT_DIR=$(cd $(dirname "$0"); pwd)
 GROUP=$(id -gn)
 
+if ! cmd_exists brew; then
+	bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+	brew update
+	brew tap homebrew/cask-cask
+fi
+
 if ! type "$(which 'git')" > /dev/null 2>&1; then
 	brew update 
 	brew install git vim
