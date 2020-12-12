@@ -1,5 +1,5 @@
 # storage
-For private data storage
+For private data storage in github
 
 ## Usage:
 
