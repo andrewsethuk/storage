@@ -1,22 +1,39 @@
-#!/bin/dash
+#!/bin/sh
 
 CHECKOUT_DIR=data
 PRIVATE_DIR='.PRIVATE'
 
-#--------------------------- update repo  ---------------------------
+#--------------------------- install tools  ---------------------------
+
 ROOT_DIR=$(cd $(dirname "$0"); pwd)
 GROUP=$(id -gn)
+is_ubuntu() { uname -a | grep -iq ubuntu; }
+cmd_exists() { type "$(which "$1")" > /dev/null 2>&1; }
 
-if ! type "$(which 'brew')" > /dev/null 2>&1; then
-	bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-	brew update
-	brew tap homebrew/cask-cask
+if is_ubuntu; then
+	if ! cmd_exists 'git'; then
+		sudo apt install -y git vim
+	fi
+	if ! cmd_exists 'encfs'; then
+		sudo apt install encfs
+	fi
+else
+	if ! cmd_exists 'brew'; then
+		bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+		brew update
+		brew tap homebrew/cask-cask
+	fi
+
+	if ! cmd_exists 'git'; then
+		brew update 
+		brew install git vim
+	fi
+	if ! cmd_exists 'encfs'; then
+		brew install encfs
+	fi
 fi
 
-if ! type "$(which 'git')" > /dev/null 2>&1; then
-	brew update 
-	brew install git vim
-fi
+#--------------------------- update repo  ---------------------------
 
 if [ "$1" = 'update' ]; then
 	GIT_PUSH_DEFAULT=simple
@@ -112,10 +129,6 @@ checkout_dir=$ROOT_DIR/$CHECKOUT_DIR
 #    exit 1
 #fi
 
-if ! type "$(which 'encfs')" > /dev/null 2>&1; then
-	brew install encfs
-fi
-
 if [ "$1" = 'pass' ]; then
 	ECRYPTFS_PASS=$(git config --local --get user.checkpass)
 	echo "checkpass: $ECRYPTFS_PASS"
@@ -149,7 +162,7 @@ fi
 
 ECRYPTFS_PASS=$(git config --local --get user.checkpass)
 if [ -z $ECRYPTFS_PASS ]; then
-	[ -z $ECRYPTFS_PASS ] && read -p 'Input your PASSWORD: ' ECRYPTFS_PASS
+	[ -z $ECRYPTFS_PASS ] && read -p 'Input your encfs PASSWORD: ' ECRYPTFS_PASS
 	if ! test $ECRYPTFS_PASS; then
 		echo "Error exit, password must be set."
 		exit
