@@ -24,11 +24,12 @@ else
 		brew tap homebrew/cask-cask
 	fi
 
-	if ! cmd_exists 'git'; then
+	if ! cmd_exists 'vim'; then
 		brew update 
 		brew install git vim
 	fi
 	if ! cmd_exists 'encfs'; then
+		brew install --cask osxfuse
 		brew install encfs
 	fi
 fi
@@ -140,7 +141,7 @@ if [ "$1" = 'close' ]; then
 	exit 0
 fi
 
-if [ ! -z "$(ls -A ${checkout_dir})" ]; then
+if [ ! -z "$(ls -A ${checkout_dir} 2>/dev/null)" ]; then
 	#encfs --unmount $checkout_dir
 	echo "maybe already mounted."
 	exit 0
