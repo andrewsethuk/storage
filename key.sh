@@ -25,7 +25,7 @@ else
 	fi
 
 	if ! cmd_exists 'vim'; then
-		brew update 
+		brew update
 		brew install git vim
 	fi
 	if ! cmd_exists 'encfs'; then
@@ -85,7 +85,7 @@ if [ "$1" = 'update' ]; then
 	fi
 
 	#---------------------------------------------------------------------
-	# add 
+	# add
 
 	cd $ROOT_DIR
 	IFS=; add_result=$(git add .)
@@ -131,8 +131,10 @@ checkout_dir=$ROOT_DIR/$CHECKOUT_DIR
 #fi
 
 if [ "$1" = 'pass' ]; then
+    GIT_URL=$(git remote get-url --push origin)
 	ECRYPTFS_PASS=$(git config --local --get user.checkpass)
-	echo "checkpass: $ECRYPTFS_PASS"
+	echo "github: $GIT_URL"
+	echo "mypass: $ECRYPTFS_PASS"
 	exit 0
 fi
 
@@ -148,11 +150,11 @@ if [ ! -z "$(ls -A ${checkout_dir} 2>/dev/null)" ]; then
 fi
 
 mkdir -p $source_dir
-mkdir -p $checkout_dir 
+mkdir -p $checkout_dir
 
 ignoreFile="$ROOT_DIR/.gitignore"
 if [ ! -f $ignoreFile ]; then
-	touch $ignoreFile 
+	touch $ignoreFile
 fi
 if ! grep -iq "$CHECKOUT_DIR" $ignoreFile; then
 	echo "${CHECKOUT_DIR}\n$(cat "$ignoreFile")" > "$ignoreFile"
