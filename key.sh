@@ -143,6 +143,11 @@ if [ "$1" = 'close' ]; then
 	exit 0
 fi
 
+if [ "$1" = 'help' ]; then
+	cat $ROOT_DIR/README.md
+	exit 0
+fi
+
 if [ ! -z "$(ls -A ${checkout_dir} 2>/dev/null)" ]; then
 	#encfs --unmount $checkout_dir
 	echo "maybe already mounted."
