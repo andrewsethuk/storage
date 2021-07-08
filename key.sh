@@ -29,8 +29,10 @@ else
 		brew install git vim
 	fi
 	if ! cmd_exists 'encfs'; then
-		brew install --cask osxfuse
-		brew install encfs
+		#brew install --cask osxfuse
+		#brew install encfs
+		brew install macfuse
+		brew install -s encfs.rb
 	fi
 fi
 
